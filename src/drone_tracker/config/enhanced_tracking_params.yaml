@@ -1,0 +1,177 @@
+# config/enhanced_tracking_params.yaml
+# Enhanced 3D tracking configuration adapted from proven Gazebo implementation
+
+# Enhanced Drone Control Parameters
+enhanced_drone_controller:
+  ros__parameters:
+    # Flight parameters
+    takeoff_altitude: -5.0         # meters (NED: negative is up)
+    target_follow_distance: 3.5    # meters - optimal following distance
+    distance_tolerance_m: 0.8      # tighter tolerance for responsive control
+    max_velocity_xy: 1.5           # m/s horizontal (increased from basic)
+    max_velocity_z: 0.8            # m/s vertical (more than basic)
+    safety_radius: 50.0            # meters from home
+    hover_tolerance: 0.5           # meters altitude tolerance
+    
+    # 3D Tracking specific parameters
+    min_altitude_m: 3.0            # minimum safe altitude
+    safety_altitude_m: 4.0         # altitude where safety kicks in
+    altitude_follow_gain: 0.3      # how much drone follows object vertically
+    
+    # Enhanced PID Controller gains (proven from Gazebo)
+    # X-axis (forward/backward)
+    pid_x_kp: 0.8
+    pid_x_ki: 0.01
+    pid_x_kd: 0.1
+    pid_x_max_output: 1.5
+    pid_x_max_integral: 0.3
+    
+    # Y-axis (left/right)  
+    pid_y_kp: 0.8
+    pid_y_ki: 0.01
+    pid_y_kd: 0.1
+    pid_y_max_output: 1.5
+    pid_y_max_integral: 0.3
+    
+    # Z-axis (up/down) - more conservative
+    pid_z_kp: 0.3
+    pid_z_ki: 0.005
+    pid_z_kd: 0.02
+    pid_z_max_output: 0.8
+    pid_z_max_integral: 0.1
+    
+    # Distance control (forward/back based on object size)
+    pid_distance_kp: 0.4
+    pid_distance_ki: 0.02
+    pid_distance_kd: 0.08
+    pid_distance_max_output: 1.2
+    pid_distance_max_integral: 0.2
+    
+    # Exponential smoothing (balanced from Gazebo)
+    smoother_alpha_xy: 0.15        # increased from basic for better response
+    smoother_alpha_z: 0.10         # increased from basic for altitude
+    smoother_alpha_distance: 0.15  # for distance-based movements
+    
+    # Control deadzones (reduced for better tracking)
+    position_deadzone: 0.08        # reduced from 0.15
+    altitude_deadzone: 0.12        # reduced from 0.20
+    distance_deadzone: 0.10        # reduced from 0.18
+    
+    # Velocity thresholds
+    min_vel_threshold_xy: 0.08     # below this, set to zero
+    min_vel_threshold_z: 0.05      # below this, set to zero
+    
+    # Timing
+    control_loop_rate: 20.0        # Hz
+    stabilization_duration: 3.0    # seconds after takeoff
+    target_timeout: 3.0            # seconds before switching to hover
+
+# Enhanced Object Tracker Parameters
+enhanced_object_tracker:
+  ros__parameters:
+    # Basic tracking
+    tracking_confidence_threshold: 0.7
+    max_tracking_failures: 50
+    
+    # 3D estimation parameters
+    enable_3d_estimation: true
+    known_object_size_m: 1.0       # assumed real-world object size
+    camera_focal_length_px: 350.0  # estimated focal length
+    distance_smoothing_factor: 0.8  # for stable distance estimates
+    min_distance_m: 1.0            # minimum tracking distance
+    max_distance_m: 50.0           # maximum tracking distance
+    
+    # Boundary control (from Gazebo implementation)
+    enable_boundary_control: true
+    boundary_margin: 50            # pixels from edge
+    boundary_error_threshold: 0.02 # when to start backing away
+    backup_duration_ms: 2000       # minimum backup time
+    effective_margin_increase: 40  # extra margin when backing away
+    
+    # Visual feedback
+    enable_enhanced_feedback: true
+    show_boundary_zone: true
+    show_distance_info: true
+    show_confidence_info: true
+    show_velocity_arrows: true
+    
+    # Stabilization
+    stabilization_period_ms: 3000  # stabilization after target selection
+    
+    # History and prediction
+    max_history_size: 10
+    enable_velocity_calculation: true
+    enable_position_prediction: true
+    prediction_time_ahead: 0.2     # seconds
+
+# Camera Parameters
+enhanced_camera_node:
+  ros__parameters:
+    # Basic camera settings
+    frame_width: 640
+    frame_height: 480
+    fps: 30
+    
+    # Camera calibration (adjust for your camera)
+    camera_fov_horizontal: 62.2    # degrees
+    camera_fov_vertical: 48.8      # degrees
+    
+    # GStreamer specific
+    gstreamer_pipeline: "udpsrc port=5600 ! application/x-rtp,encoding-name=H264,payload=96 ! rtph264depay ! h264parse ! avdec_h264 ! videoconvert ! appsink"
+    udp_port: 5600
+    
+    # Fallback options
+    usb_device: "/dev/video0"
+    enable_auto_exposure: true
+    brightness: 50
+    contrast: 50
+
+# Enhanced Safety Monitor Parameters  
+enhanced_safety_monitor:
+  ros__parameters:
+    # Basic safety limits
+    max_altitude: 25.0             # maximum allowed altitude
+    max_distance_from_home: 100.0  # maximum distance from home
+    battery_warning_threshold: 20.0
+    battery_critical_threshold: 10.0
+    enable_battery_monitor: false   # disabled in simulation
+    
+    # 3D tracking specific safety
+    max_tracking_velocity: 1.5      # maximum velocity during tracking
+    min_safe_altitude: 3.0         # minimum altitude for tracking
+    boundary_safety_margin: 30     # pixels - safety margin from image edges
+    enable_ground_safety: true     # enable ground proximity safety
+    ground_safety_gain: 0.8        # strength of ground avoidance
+    
+    # Safety violation handling
+    violation_count_threshold: 3    # violations before emergency
+    safety_check_rate: 2.0         # Hz - safety monitoring rate
+    emergency_hover_time: 5.0      # seconds to hover after emergency
+    
+    # Recovery parameters
+    enable_automatic_recovery: true
+    recovery_altitude_gain: 2.0    # meters to climb for recovery
+    recovery_hover_duration: 3.0   # seconds to hover during recovery
+
+# System Performance Parameters
+system_performance:
+  ros__parameters:
+    # Monitoring
+    enable_performance_logging: false
+    log_directory: "/tmp/drone_tracking_logs"
+    log_rate_hz: 10.0
+    max_log_size_mb: 100
+    
+    # Resource limits
+    max_cpu_percent: 80.0          # warning threshold
+    max_memory_percent: 70.0       # warning threshold
+    
+    # Network monitoring
+    px4_connection_timeout: 5.0    # seconds
+    camera_timeout: 3.0            # seconds
+    tracking_timeout: 2.0          # seconds
+    
+    # Debug options
+    enable_debug_visualization: true
+    debug_print_rate: 0.2          # Hz for debug prints
+    enable_timing_analysis: false   # detailed timing analysis

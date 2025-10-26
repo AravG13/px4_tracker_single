@@ -1,0 +1,13 @@
+# config/csv_logger_params.yaml
+# Configuration for single CSV data logger with rate control
+
+csv_logger:
+  ros__parameters:
+    # Logging rate (Hz) - how many times per second to record
+    # 1.0 = once per second (3600 rows/hour)
+    # 5.0 = 5 times per second (18000 rows/hour)
+    # 10.0 = 10 times per second (36000 rows/hour)
+    log_rate_hz: 5.0
+    
+    # Output filename (timestamp will be added automatically)
+    log_filename: "tracking_data.csv"

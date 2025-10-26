@@ -1,0 +1,15 @@
+# ROS2 build files
+build/
+install/
+log/
+
+# IDE / system files
+.vscode/
+.idea/
+*.swp
+*.pyc
+__pycache__/
+
+# Colcon metadata
+.colcon/
+
